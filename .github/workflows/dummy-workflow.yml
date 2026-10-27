@@ -1,0 +1,39 @@
+name: Dummy Workflow
+
+on:
+  push:
+    tags:
+      - 'no-tags-*'
+
+jobs:
+  test-vars:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Display trigger information
+        run: |
+          echo "Workflow triggered by tag."
+          echo "Tag: ${GITHUB_REF#refs/tags/}"
+          echo "Ref: $GITHUB_REF"
+
+      - name: Test repository variables
+        run: |
+          echo "APP_ENV=${{ vars.APP_ENV }}"
+          echo "API_URL=${{ vars.API_URL }}"
+
+      - name: Validate secrets
+        env:
+          MY_SECRET: ${{ secrets.MY_SECRET }}
+        run: |
+          if [ -n "$MY_SECRET" ]; then
+            echo "✅ Secret MY_SECRET is available"
+          else
+            echo "❌ Secret MY_SECRET is missing"
+            exit 1
+          fi
+
+      - name: Dump selected GitHub context
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Run ID: ${{ github.run_id }}"
